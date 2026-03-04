@@ -225,41 +225,35 @@ public class SquareMatrix : ICloneable, IComparable<SquareMatrix>
         return result;
     }
 
-    public static bool operator >(SquareMatrix? first, SquareMatrix? second)
-    {
-        if (first is null)
-        {
-            return false;
-        }
-            
-        return first.CompareTo(second) > 0;
-    }
+public static bool operator >(SquareMatrix? first, SquareMatrix? second)
+{
+    if (first is null || second is null)
+        throw new MatrixOperationException("Cannot compare null matrices");
 
-    public static bool operator <(SquareMatrix? first, SquareMatrix? second)
-    {
-        if (first is null)
-        {
-            return second is not null;
-        }
-            
-        return first.CompareTo(second) < 0;
-    }
+    return first.CompareTo(second) > 0;
+}
 
-    public static bool operator >=(SquareMatrix? first, SquareMatrix? second)
-    {
-        if (first is null)
-        {
-            return second is null;
-        }
-            
-        return first.CompareTo(second) >= 0;
-    }
+public static bool operator <(SquareMatrix? first, SquareMatrix? second)
+{
+    if (first is null || second is null)
+        throw new MatrixOperationException("Cannot compare null matrices");
+
+    return first.CompareTo(second) < 0;
+}
+
+public static bool operator >=(SquareMatrix? first, SquareMatrix? second)
+{
+    if (first is null || second is null)
+        throw new MatrixOperationException("Cannot compare null matrices");
+
+    return first.CompareTo(second) >= 0;
+}
 
     public static bool operator <=(SquareMatrix? first, SquareMatrix? second)
     {
-        if (first is null)
+        if (first is null || second is null)
         {
-            return true;
+            throw new MatrixOperationException("Cannot compare null matrices");
         }
             
         return first.CompareTo(second) <= 0;
@@ -271,17 +265,17 @@ public class SquareMatrix : ICloneable, IComparable<SquareMatrix>
         {
             return true;
         }
-            
+
         if (first is null || second is null)
         {
             return false;
         }
-            
+
         if (first.dimension != second.dimension)
         {
             return false;
         }
-            
+
         for (int rowIndex = 0; rowIndex < first.dimension; ++rowIndex)
         {
             for (int columnIndex = 0; columnIndex < first.dimension; ++columnIndex)
@@ -304,11 +298,21 @@ public class SquareMatrix : ICloneable, IComparable<SquareMatrix>
 
     public static bool operator true(SquareMatrix matrix)
     {
+        if (matrix is null)
+        {
+            return false;
+        }
+
         return Math.Abs(matrix.Determinant()) > ZeroTolerance;
     }
 
     public static bool operator false(SquareMatrix matrix)
     {
+        if (matrix is null)
+        {
+            return true;
+        }
+
         return Math.Abs(matrix.Determinant()) <= ZeroTolerance;
     }
 
@@ -429,7 +433,19 @@ public double Determinant()
     }
 
     public SquareMatrix Inverse()
-    {
+    {   
+        if (dimension == 1)
+        {
+            if (Math.Abs(elements[0, 0]) <= ZeroTolerance)
+            {
+                throw new MatrixOperationException("Matrix is degenerate");
+            }
+        
+            SquareMatrix result = new SquareMatrix(1, false);
+            result[0, 0] = 1 / elements[0, 0];
+            return result;
+        }
+
         double determinant;
 
         determinant = Determinant();
@@ -458,9 +474,14 @@ public double Determinant()
         return adjugate;
     }
 
-    public object Clone()
+    public SquareMatrix CloneMatrix()
     {
         return new SquareMatrix((double[,])elements.Clone());
+    }
+
+    object ICloneable.Clone()
+    {
+        return CloneMatrix();
     }
 
     public int CompareTo(SquareMatrix? other)
