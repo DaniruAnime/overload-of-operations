@@ -8,47 +8,59 @@ public class Program
         try
         {
             Console.Write("Enter size matrix: ");
-            string? input = Console.ReadLine();
+            string? input;
+            input = Console.ReadLine();
 
             if (!int.TryParse(input, out int size) || size <= 0)
             {
                 throw new MatrixSizeException("Size matrix must be a positive integer");
             }
 
-            SquareMatrix matrixA = new SquareMatrix(size, true);
-            SquareMatrix matrixB = new SquareMatrix(size, true);
+            SquareMatrix matrixA;
+            SquareMatrix matrixB;
 
-            Console.WriteLine("\nMatrix A:");
-            Console.WriteLine(matrixA);
+            matrixA = new SquareMatrix(size, true);
+            matrixB = new SquareMatrix(size, true);
 
-            Console.WriteLine("Matrix B:");
-            Console.WriteLine(matrixB);
+            Console.Write($"""
 
-            Console.WriteLine("A + B:");
-            Console.WriteLine(matrixA + matrixB);
-
-            Console.WriteLine("A * B:");
-            Console.WriteLine(matrixA * matrixB);
-
-            Console.WriteLine($"det(A) = {matrixA.Determinant():F4}");
+                Matrix A:
+                {matrixA}
+                Matrix B:
+                {matrixB}
+                A + B:
+                {matrixA + matrixB}
+                A * B:
+                {matrixA * matrixB}
+                det(A) = {matrixA.Determinant():F4}
+                """);
 
             if (matrixA)
             {
-                Console.WriteLine("Matrix A is invertible:");
-                Console.WriteLine(matrixA.Inverse());
+                Console.Write($"""
+
+                    Matrix A is invertible:
+                    {matrixA.Inverse()}
+                    """);
             }
+
             else
             {
                 Console.WriteLine("Matrix A is not invertible");
             }
 
-            Console.WriteLine($"A == B : {matrixA == matrixB}");
-            Console.WriteLine($"A > B : {matrixA > matrixB}");
+            Console.Write($"""
+
+                A == B : {matrixA == matrixB}
+                A > B : {matrixA > matrixB}
+                """);
         }
+
         catch (MatrixException exception)
         {
             Console.WriteLine($"Error: {exception.Message}");
         }
+
         catch (Exception exception)
         {
             Console.WriteLine($"Unexpected error: {exception.Message}");
@@ -76,12 +88,18 @@ public class SquareMatrix : ICloneable, IComparable<SquareMatrix>
     private readonly double[,] elements;
     private readonly int dimension;
     private static readonly Random random = new Random();
-    private const double ZeroTolerance = 1e-9;
-    private const int HashPrime = 31;
-    private const int RandomMinValue = -5;
-    private const int RandomMaxValue = 6;
+    private static readonly double ZeroTolerance = 1e-9;
+    private static readonly int HashPrime = 31;
+    private static readonly int RandomMinValue = -5;
+    private static readonly int RandomMaxValue = 6;
 
-    public int Size => dimension;
+    public int Size
+    {
+        get
+        {
+            return dimension;
+        }
+    }
 
     public SquareMatrix(int size, bool generateRandom)
     {
@@ -112,8 +130,11 @@ public class SquareMatrix : ICloneable, IComparable<SquareMatrix>
             throw new MatrixOperationException("Source matrix is null");
         }
 
-        int rows = source.GetLength(0);
-        int columns = source.GetLength(1);
+        int rows;
+        int columns;
+
+        rows = source.GetLength(0);
+        columns = source.GetLength(1);
 
         if (rows != columns)
         {
@@ -156,7 +177,9 @@ public class SquareMatrix : ICloneable, IComparable<SquareMatrix>
 
         EnsureSameSize(first, second);
 
-        SquareMatrix result = new SquareMatrix(first.dimension, false);
+        SquareMatrix result;
+
+        result = new SquareMatrix(first.dimension, false);
 
         for (int rowIndex = 0; rowIndex < first.dimension; ++rowIndex)
         {
@@ -179,7 +202,9 @@ public class SquareMatrix : ICloneable, IComparable<SquareMatrix>
 
         EnsureSameSize(first, second);
 
-        SquareMatrix result = new SquareMatrix(first.dimension, false);
+        SquareMatrix result;
+
+        result = new SquareMatrix(first.dimension, false);
 
         for (int rowIndex = 0; rowIndex < first.dimension; ++rowIndex)
         {
@@ -200,37 +225,63 @@ public class SquareMatrix : ICloneable, IComparable<SquareMatrix>
         return result;
     }
 
-    public static bool operator >(SquareMatrix first, SquareMatrix second)
+    public static bool operator >(SquareMatrix? first, SquareMatrix? second)
     {
+        if (first is null)
+        {
+            return false;
+        }
+            
         return first.CompareTo(second) > 0;
     }
 
-    public static bool operator <(SquareMatrix first, SquareMatrix second)
+    public static bool operator <(SquareMatrix? first, SquareMatrix? second)
     {
+        if (first is null)
+        {
+            return second is not null;
+        }
+            
         return first.CompareTo(second) < 0;
     }
 
-    public static bool operator >=(SquareMatrix first, SquareMatrix second)
+    public static bool operator >=(SquareMatrix? first, SquareMatrix? second)
     {
+        if (first is null)
+        {
+            return second is null;
+        }
+            
         return first.CompareTo(second) >= 0;
     }
 
-    public static bool operator <=(SquareMatrix first, SquareMatrix second)
+    public static bool operator <=(SquareMatrix? first, SquareMatrix? second)
     {
+        if (first is null)
+        {
+            return true;
+        }
+            
         return first.CompareTo(second) <= 0;
     }
 
     public static bool operator ==(SquareMatrix? first, SquareMatrix? second)
     {
         if (ReferenceEquals(first, second))
+        {
             return true;
-
+        }
+            
         if (first is null || second is null)
+        {
             return false;
-
+        }
+            
         if (first.dimension != second.dimension)
+        {
             return false;
-
+        }
+            
         for (int rowIndex = 0; rowIndex < first.dimension; ++rowIndex)
         {
             for (int columnIndex = 0; columnIndex < first.dimension; ++columnIndex)
@@ -274,44 +325,99 @@ public class SquareMatrix : ICloneable, IComparable<SquareMatrix>
         }
     }
 
-    public double Determinant()
+public double Determinant()
+{
+    double[,] copy;
+    double determinant;
+    int swapCount;
+
+    copy = (double[,])elements.Clone();
+    determinant = 1;
+    swapCount = 0;
+
+    for (int pivotIndex = 0; pivotIndex < dimension; ++pivotIndex)
     {
-        if (dimension == 1)
-            return elements[0, 0];
+        int maxRow;
 
-        if (dimension == 2)
-            return elements[0, 0] * elements[1, 1] -
-                   elements[0, 1] * elements[1, 0];
+        maxRow = pivotIndex;
 
-        double determinant = 0;
-
-        for (int columnIndex = 0; columnIndex < dimension; ++columnIndex)
+        for (int rowIndex = pivotIndex + 1; rowIndex < dimension; ++rowIndex)
         {
-            SquareMatrix minor = CreateMinor(0, columnIndex);
-            double sign = columnIndex % 2 == 0 ? 1 : -1;
-            determinant += sign * elements[0, columnIndex] * minor.Determinant();
+            if (Math.Abs(copy[rowIndex, pivotIndex]) >
+                Math.Abs(copy[maxRow, pivotIndex]))
+            {
+                maxRow = rowIndex;
+            }
         }
 
-        return determinant;
+        if (Math.Abs(copy[maxRow, pivotIndex]) <= ZeroTolerance)
+        {
+            return 0;
+        }
+
+        if (maxRow != pivotIndex)
+        {
+            for (int columnIndex = 0; columnIndex < dimension; ++columnIndex)
+            {
+                double temp = copy[pivotIndex, columnIndex];
+                copy[pivotIndex, columnIndex] = copy[maxRow, columnIndex];
+                copy[maxRow, columnIndex] = temp;
+            }
+
+            ++swapCount;
+        }
+
+        for (int rowIndex = pivotIndex + 1; rowIndex < dimension; ++rowIndex)
+        {
+            double factor = copy[rowIndex, pivotIndex] /
+                            copy[pivotIndex, pivotIndex];
+
+            for (int columnIndex = pivotIndex; columnIndex < dimension; columnIndex++)
+            {
+                copy[rowIndex, columnIndex] -=
+                    factor * copy[pivotIndex, columnIndex];
+            }
+        }
     }
+
+    for (int index = 0; index < dimension; ++index)
+    {
+        determinant *= copy[index, index];
+    }
+
+    if (swapCount % 2 != 0)
+    {
+        determinant = -determinant;
+    }
+
+    return determinant;
+}
 
     private SquareMatrix CreateMinor(int excludedRow, int excludedColumn)
     {
-        SquareMatrix minor = new SquareMatrix(dimension - 1, false);
-        int minorRow = 0;
+        SquareMatrix minor;
+        int minorRow;
+
+        minor = new SquareMatrix(dimension - 1, false);
+        minorRow = 0;
 
         for (int rowIndex = 0; rowIndex < dimension; ++rowIndex)
         {
             if (rowIndex == excludedRow)
+            {
                 continue;
+            }
 
-            int minorColumn = 0;
+            int minorColumn;
+            minorColumn = 0;
 
             for (int columnIndex = 0; columnIndex < dimension; ++columnIndex)
             {
                 if (columnIndex == excludedColumn)
+                {
                     continue;
-
+                }
+                
                 minor[minorRow, minorColumn] = elements[rowIndex, columnIndex];
                 ++minorColumn;
             }
@@ -324,14 +430,18 @@ public class SquareMatrix : ICloneable, IComparable<SquareMatrix>
 
     public SquareMatrix Inverse()
     {
-        double determinant = Determinant();
+        double determinant;
+
+        determinant = Determinant();
 
         if (Math.Abs(determinant) <= ZeroTolerance)
         {
             throw new MatrixOperationException("Matrix is degenerate");
         }
 
-        SquareMatrix adjugate = new SquareMatrix(dimension, false);
+        SquareMatrix adjugate;
+
+        adjugate = new SquareMatrix(dimension, false);
 
         for (int rowIndex = 0; rowIndex < dimension; ++rowIndex)
         {
@@ -356,7 +466,9 @@ public class SquareMatrix : ICloneable, IComparable<SquareMatrix>
     public int CompareTo(SquareMatrix? other)
     {
         if (other is null)
+        {
             return 1;
+        }
 
         return Determinant().CompareTo(other.Determinant());
     }
@@ -368,7 +480,9 @@ public class SquareMatrix : ICloneable, IComparable<SquareMatrix>
 
     public override int GetHashCode()
     {
-        int hash = dimension;
+        int hash;
+
+        hash = dimension;
 
         for (int rowIndex = 0; rowIndex < dimension; ++rowIndex)
         {
@@ -387,7 +501,9 @@ public class SquareMatrix : ICloneable, IComparable<SquareMatrix>
 
     public override string ToString()
     {
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder;
+
+        builder = new StringBuilder();
 
         for (int rowIndex = 0; rowIndex < dimension; ++rowIndex)
         {
