@@ -228,23 +228,29 @@ public class SquareMatrix : ICloneable, IComparable<SquareMatrix>
 public static bool operator >(SquareMatrix? first, SquareMatrix? second)
 {
     if (first is null || second is null)
+    {
         throw new MatrixOperationException("Cannot compare null matrices");
-
+    }
+        
     return first.CompareTo(second) > 0;
 }
 
 public static bool operator <(SquareMatrix? first, SquareMatrix? second)
 {
     if (first is null || second is null)
+    {
         throw new MatrixOperationException("Cannot compare null matrices");
-
+    }
+        
     return first.CompareTo(second) < 0;
 }
 
 public static bool operator >=(SquareMatrix? first, SquareMatrix? second)
 {
     if (first is null || second is null)
+    {
         throw new MatrixOperationException("Cannot compare null matrices");
+    }
 
     return first.CompareTo(second) >= 0;
 }
@@ -363,7 +369,8 @@ public double Determinant()
         {
             for (int columnIndex = 0; columnIndex < dimension; ++columnIndex)
             {
-                double temp = copy[pivotIndex, columnIndex];
+                double temp;
+                temp = copy[pivotIndex, columnIndex];
                 copy[pivotIndex, columnIndex] = copy[maxRow, columnIndex];
                 copy[maxRow, columnIndex] = temp;
             }
@@ -373,8 +380,8 @@ public double Determinant()
 
         for (int rowIndex = pivotIndex + 1; rowIndex < dimension; ++rowIndex)
         {
-            double factor = copy[rowIndex, pivotIndex] /
-                            copy[pivotIndex, pivotIndex];
+            double factor;
+            factor = copy[rowIndex, pivotIndex] / copy[pivotIndex, pivotIndex];
 
             for (int columnIndex = pivotIndex; columnIndex < dimension; ++columnIndex)
             {
@@ -400,6 +407,7 @@ public double Determinant()
     private SquareMatrix CreateMinor(int excludedRow, int excludedColumn)
     {
         SquareMatrix minor;
+
         int minorRow;
 
         minor = new SquareMatrix(dimension - 1, false);
@@ -413,6 +421,7 @@ public double Determinant()
             }
 
             int minorColumn;
+            
             minorColumn = 0;
 
             for (int columnIndex = 0; columnIndex < dimension; ++columnIndex)
