@@ -8,7 +8,9 @@ public class Program
         try
         {
             Console.Write("Enter size matrix: ");
+
             string? input;
+            
             input = Console.ReadLine();
 
             if (!int.TryParse(input, out int size) || size <= 0)
@@ -421,7 +423,7 @@ public double Determinant()
             }
 
             int minorColumn;
-            
+
             minorColumn = 0;
 
             for (int columnIndex = 0; columnIndex < dimension; ++columnIndex)
