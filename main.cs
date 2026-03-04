@@ -376,7 +376,7 @@ public double Determinant()
             double factor = copy[rowIndex, pivotIndex] /
                             copy[pivotIndex, pivotIndex];
 
-            for (int columnIndex = pivotIndex; columnIndex < dimension; columnIndex++)
+            for (int columnIndex = pivotIndex; columnIndex < dimension; ++columnIndex)
             {
                 copy[rowIndex, columnIndex] -=
                     factor * copy[pivotIndex, columnIndex];
@@ -440,7 +440,7 @@ public double Determinant()
             {
                 throw new MatrixOperationException("Matrix is degenerate");
             }
-        
+
             SquareMatrix result = new SquareMatrix(1, false);
             result[0, 0] = 1 / elements[0, 0];
             return result;
