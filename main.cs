@@ -10,7 +10,7 @@ public class Program
             Console.Write("Enter size matrix: ");
 
             string? input;
-            
+
             input = Console.ReadLine();
 
             if (!int.TryParse(input, out int size) || size <= 0)
