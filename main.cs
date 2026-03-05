@@ -205,7 +205,8 @@ public class SquareMatrix : ICloneable, IComparable<SquareMatrix>
         {
             for (int columnIndex = 0; columnIndex < first.dimension; ++columnIndex)
             {
-                double sum = 0;
+                double sum;
+                sum = 0;
 
                 for (int innerIndex = 0; innerIndex < first.dimension; ++innerIndex)
                 {
