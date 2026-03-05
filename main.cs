@@ -8,9 +8,7 @@ public class Program
         try
         {
             Console.Write("Enter size matrix: ");
-
             string? input;
-
             input = Console.ReadLine();
 
             if (!int.TryParse(input, out int size) || size <= 0)
@@ -20,12 +18,11 @@ public class Program
 
             SquareMatrix matrixA;
             SquareMatrix matrixB;
-
             matrixA = new SquareMatrix(size, true);
             matrixB = new SquareMatrix(size, true);
 
+            Console.WriteLine();
             Console.Write($"""
-
                 Matrix A:
                 {matrixA}
                 Matrix B:
@@ -37,10 +34,11 @@ public class Program
                 det(A) = {matrixA.Determinant():F4}
                 """);
 
+            // Проверяет, существует ли обратная матрица
             if (matrixA)
             {
+                Console.WriteLine();
                 Console.Write($"""
-
                     Matrix A is invertible:
                     {matrixA.Inverse()}
                     """);
@@ -51,8 +49,8 @@ public class Program
                 Console.WriteLine("Matrix A is not invertible");
             }
 
+            Console.WriteLine();
             Console.Write($"""
-
                 A == B : {matrixA == matrixB}
                 A > B : {matrixA > matrixB}
                 """);
@@ -134,7 +132,6 @@ public class SquareMatrix : ICloneable, IComparable<SquareMatrix>
 
         int rows;
         int columns;
-
         rows = source.GetLength(0);
         columns = source.GetLength(1);
 
@@ -178,9 +175,7 @@ public class SquareMatrix : ICloneable, IComparable<SquareMatrix>
         }
 
         EnsureSameSize(first, second);
-
         SquareMatrix result;
-
         result = new SquareMatrix(first.dimension, false);
 
         for (int rowIndex = 0; rowIndex < first.dimension; ++rowIndex)
@@ -203,9 +198,7 @@ public class SquareMatrix : ICloneable, IComparable<SquareMatrix>
         }
 
         EnsureSameSize(first, second);
-
         SquareMatrix result;
-
         result = new SquareMatrix(first.dimension, false);
 
         for (int rowIndex = 0; rowIndex < first.dimension; ++rowIndex)
@@ -227,6 +220,7 @@ public class SquareMatrix : ICloneable, IComparable<SquareMatrix>
         return result;
     }
 
+// Сравнение матриц по их определителю
 public static bool operator >(SquareMatrix? first, SquareMatrix? second)
 {
     if (first is null || second is null)
@@ -267,6 +261,7 @@ public static bool operator >=(SquareMatrix? first, SquareMatrix? second)
         return first.CompareTo(second) <= 0;
     }
 
+    // Проверка равенства матриц с учётом погрешности
     public static bool operator ==(SquareMatrix? first, SquareMatrix? second)
     {
         if (ReferenceEquals(first, second))
@@ -304,6 +299,7 @@ public static bool operator >=(SquareMatrix? first, SquareMatrix? second)
         return !(first == second);
     }
 
+    // Позволяет использовать матрицу в условии if (matrix)
     public static bool operator true(SquareMatrix matrix)
     {
         if (matrix is null)
@@ -337,12 +333,12 @@ public static bool operator >=(SquareMatrix? first, SquareMatrix? second)
         }
     }
 
+// Вычисление определителя методом Гаусса
 public double Determinant()
 {
     double[,] copy;
     double determinant;
     int swapCount;
-
     copy = (double[,])elements.Clone();
     determinant = 1;
     swapCount = 0;
@@ -350,7 +346,6 @@ public double Determinant()
     for (int pivotIndex = 0; pivotIndex < dimension; ++pivotIndex)
     {
         int maxRow;
-
         maxRow = pivotIndex;
 
         for (int rowIndex = pivotIndex + 1; rowIndex < dimension; ++rowIndex)
@@ -367,6 +362,7 @@ public double Determinant()
             return 0;
         }
 
+        // Перестановка строк
         if (maxRow != pivotIndex)
         {
             for (int columnIndex = 0; columnIndex < dimension; ++columnIndex)
@@ -406,12 +402,11 @@ public double Determinant()
     return determinant;
 }
 
+    // Создание минора подматрицы без указанной строки и столбца
     private SquareMatrix CreateMinor(int excludedRow, int excludedColumn)
     {
         SquareMatrix minor;
-
         int minorRow;
-
         minor = new SquareMatrix(dimension - 1, false);
         minorRow = 0;
 
@@ -443,6 +438,7 @@ public double Determinant()
         return minor;
     }
 
+    // Вычисление обратной матрицы через алгебраические дополнения
     public SquareMatrix Inverse()
     {   
         if (dimension == 1)
@@ -458,7 +454,6 @@ public double Determinant()
         }
 
         double determinant;
-
         determinant = Determinant();
 
         if (Math.Abs(determinant) <= ZeroTolerance)
@@ -467,7 +462,6 @@ public double Determinant()
         }
 
         SquareMatrix adjugate;
-
         adjugate = new SquareMatrix(dimension, false);
 
         for (int rowIndex = 0; rowIndex < dimension; ++rowIndex)
@@ -513,7 +507,6 @@ public double Determinant()
     public override int GetHashCode()
     {
         int hash;
-
         hash = dimension;
 
         for (int rowIndex = 0; rowIndex < dimension; ++rowIndex)
@@ -534,7 +527,6 @@ public double Determinant()
     public override string ToString()
     {
         StringBuilder builder;
-
         builder = new StringBuilder();
 
         for (int rowIndex = 0; rowIndex < dimension; ++rowIndex)
